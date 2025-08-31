@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>luisleonett.com</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      font-family: 'Arial', sans-serif;
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 32px;
+    }
+
+    #countdown {
+      display: flex;
+      gap: 20px;
+    }
+
+    .digit {
+      position: relative;
+      width: 100px;
+      height: 120px;
+      background: linear-gradient(to bottom, #800020, #a52a2a);
+      border-radius: 15px;
+      box-shadow: 0 0 15px #800020;
+      color: white;
+      font-weight: bold;
+      font-size: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .digit::before {
+      content: '🎉';
+      position: absolute;
+      top: -45px;
+      font-size: 45px;
+      color: #800020;
+      text-shadow: 0 0 5px #800020;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cuenta regresiva para el gran momento</h1>
+  <div id="countdown"></div>
+  <canvas id="glitterCanvas"></canvas>
+
+  <script>
+    const countdown = document.getElementById('countdown');
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 2);
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = endDate - now;
+
+      if (diff <= 0) {
+        countdown.innerHTML = '<h2>¡Llegó el momento! 🎊</h2>';
+        triggerGlitter();
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      countdown.innerHTML = '';
+      [days, hours, minutes, seconds].forEach(unit => {
+        const digit = document.createElement('div');
+        digit.className = 'digit';
+        digit.textContent = unit.toString().padStart(2, '0');
+        countdown.appendChild(digit);
+      });
+
+      if (diff < 5 * 60 * 1000) {
+        triggerGlitter();
+      }
+    }
+
+    setInterval(updateCountdown, 1000);
+
+    function triggerGlitter() {
+      const canvas = document.getElementById('glitterCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let particles = [];
+
+      for (let i = 0; i < 300; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 3 + 1,
+          dx: (Math.random() - 0.5) * 2,
+          dy: (Math.random() - 0.5) * 2,
+          color: 'rgba(255, 215, 0, 0.8)'
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+          p.x += p.dx;
+          p.y += p.dy;
+        });
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+    }
+  </script>
+</body>
+</html>
